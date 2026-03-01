@@ -1,0 +1,4 @@
+{"debug":"Starting connection with timeout of 30000ms","timestamp":"2026-03-01T22:16:33.302Z","sessionId":"b1762e08-3632-45ce-95af-8ff5bbf5d070","cwd":"/workspaces/mission-dd712aff"}
+{"error":"Server stderr: npm WARN exec The following package was not found and will be installed: @playwright/mcp@0.0.68\n","timestamp":"2026-03-01T22:16:35.350Z","sessionId":"b1762e08-3632-45ce-95af-8ff5bbf5d070","cwd":"/workspaces/mission-dd712aff"}
+{"debug":"Successfully connected to undefined server in 2049ms","timestamp":"2026-03-01T22:16:35.350Z","sessionId":"b1762e08-3632-45ce-95af-8ff5bbf5d070","cwd":"/workspaces/mission-dd712aff"}
+{"debug":"Connection established with capabilities: {\"hasTools\":true,\"hasPrompts\":false,\"hasResources\":false,\"serverVersion\":{\"name\":\"Playwright\",\"version\":\"0.0.68\"}}","timestamp":"2026-03-01T22:16:35.350Z","sessionId":"b1762e08-3632-45ce-95af-8ff5bbf5d070","cwd":"/workspaces/mission-dd712aff"}

@@ -1,0 +1,26 @@
+{
+  "name": "oblivious-execution-client",
+  "version": "0.1.0",
+  "description": "Minimal browser execution client for verified eth_call via oblivious_node EIP-1186 proofs",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && node build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "demo": "node build.mjs && npx serve dist-demo"
+  },
+  "keywords": ["ethereum", "eip-1186", "eth_getProof", "verified-execution", "oblivious"],
+  "license": "MIT",
+  "dependencies": {
+    "@noble/hashes": "^1.7.0",
+    "ethers": "^6.13.0",
+    "rlp": "^3.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

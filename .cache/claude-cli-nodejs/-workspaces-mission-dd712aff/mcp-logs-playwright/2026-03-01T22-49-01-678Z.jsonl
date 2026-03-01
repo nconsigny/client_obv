@@ -1,0 +1,3 @@
+{"debug":"Starting connection with timeout of 30000ms","timestamp":"2026-03-01T22:49:01.817Z","sessionId":"d04e54d0-eeee-4f0f-b79a-7e1427c3709c","cwd":"/workspaces/mission-dd712aff"}
+{"debug":"Successfully connected to undefined server in 1530ms","timestamp":"2026-03-01T22:49:03.346Z","sessionId":"d04e54d0-eeee-4f0f-b79a-7e1427c3709c","cwd":"/workspaces/mission-dd712aff"}
+{"debug":"Connection established with capabilities: {\"hasTools\":true,\"hasPrompts\":false,\"hasResources\":false,\"serverVersion\":{\"name\":\"Playwright\",\"version\":\"0.0.68\"}}","timestamp":"2026-03-01T22:49:03.346Z","sessionId":"d04e54d0-eeee-4f0f-b79a-7e1427c3709c","cwd":"/workspaces/mission-dd712aff"}

@@ -1,0 +1,47 @@
+[
+  {
+    "content": "Research oblivious_node repo structure and RPC interface",
+    "status": "completed",
+    "activeForm": "Researching oblivious_node repo"
+  },
+  {
+    "content": "Reconstruct spec requirements from uploaded file context",
+    "status": "in_progress",
+    "activeForm": "Reconstructing spec requirements"
+  },
+  {
+    "content": "Design browser execution client architecture",
+    "status": "pending",
+    "activeForm": "Designing browser execution client architecture"
+  },
+  {
+    "content": "Implement core JSON-RPC transport layer",
+    "status": "pending",
+    "activeForm": "Implementing JSON-RPC transport layer"
+  },
+  {
+    "content": "Implement eth_getProof method wrapper",
+    "status": "pending",
+    "activeForm": "Implementing eth_getProof method"
+  },
+  {
+    "content": "Implement admin methods (admin_put_node, admin_set_root)",
+    "status": "pending",
+    "activeForm": "Implementing admin methods"
+  },
+  {
+    "content": "Build browser UI for interacting with the node",
+    "status": "pending",
+    "activeForm": "Building browser UI"
+  },
+  {
+    "content": "Add error handling, connection management, and status display",
+    "status": "pending",
+    "activeForm": "Adding error handling and status display"
+  },
+  {
+    "content": "Test and validate the client",
+    "status": "pending",
+    "activeForm": "Testing and validating the client"
+  }
+]

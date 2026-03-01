@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "desktop": {
+      "args": [],
+      "command": "desktop-mcp",
+      "env": {
+        "DESKTOP_RESOLUTION": "1920x1080",
+        "SANDBOXED_SH_RUNTIME_WORKSPACE_FILE": "/.sandboxed-sh/runtime/current_workspace.json",
+        "SANDBOXED_SH_WORKSPACE": "/workspaces/mission-dd712aff",
+        "SANDBOXED_SH_WORKSPACE_ROOT": "/",
+        "SANDBOXED_SH_WORKSPACE_TYPE": "host",
+        "WORKING_DIR": "/workspaces/mission-dd712aff"
+      }
+    },
+    "playwright": {
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless",
+        "--isolated",
+        "--no-sandbox"
+      ],
+      "command": "/usr/bin/npx",
+      "env": {
+        "SANDBOXED_SH_RUNTIME_WORKSPACE_FILE": "/.sandboxed-sh/runtime/current_workspace.json",
+        "SANDBOXED_SH_WORKSPACE": "/workspaces/mission-dd712aff",
+        "SANDBOXED_SH_WORKSPACE_ROOT": "/",
+        "SANDBOXED_SH_WORKSPACE_TYPE": "host",
+        "WORKING_DIR": "/workspaces/mission-dd712aff"
+      }
+    },
+    "workspace": {
+      "args": [],
+      "command": "workspace-mcp",
+      "env": {
+        "SANDBOXED_SH_RUNTIME_WORKSPACE_FILE": "/.sandboxed-sh/runtime/current_workspace.json",
+        "SANDBOXED_SH_WORKSPACE": "/workspaces/mission-dd712aff",
+        "SANDBOXED_SH_WORKSPACE_ROOT": "/",
+        "SANDBOXED_SH_WORKSPACE_TYPE": "host",
+        "WORKING_DIR": "/workspaces/mission-dd712aff"
+      }
+    }
+  }
+}

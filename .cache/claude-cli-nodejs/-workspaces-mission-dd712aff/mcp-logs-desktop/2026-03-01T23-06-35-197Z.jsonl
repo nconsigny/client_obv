@@ -1,0 +1,3 @@
+{"debug":"Starting connection with timeout of 30000ms","timestamp":"2026-03-01T23:06:35.338Z","sessionId":"a038a0d8-cada-4aba-88f7-7a99d00a5ea8","cwd":"/workspaces/mission-dd712aff"}
+{"debug":"Connection failed after 39ms: spawn desktop-mcp ENOENT","timestamp":"2026-03-01T23:06:35.370Z","sessionId":"a038a0d8-cada-4aba-88f7-7a99d00a5ea8","cwd":"/workspaces/mission-dd712aff"}
+{"error":"Connection failed: spawn desktop-mcp ENOENT","timestamp":"2026-03-01T23:06:35.371Z","sessionId":"a038a0d8-cada-4aba-88f7-7a99d00a5ea8","cwd":"/workspaces/mission-dd712aff"}

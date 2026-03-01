@@ -1,0 +1,64 @@
+2026-03-01T23:01:14.303Z [DEBUG] [init] configureGlobalMTLS starting
+2026-03-01T23:01:14.304Z [DEBUG] [init] configureGlobalMTLS complete
+2026-03-01T23:01:14.304Z [DEBUG] [init] configureGlobalAgents starting
+2026-03-01T23:01:14.304Z [DEBUG] [init] configureGlobalAgents complete
+2026-03-01T23:01:14.345Z [DEBUG] Applying permission update: Adding 5 allow rule(s) to destination 'userSettings': ["Bash","Edit","Write","Read","mcp__*"]
+2026-03-01T23:01:14.345Z [DEBUG] Applying permission update: Adding 5 allow rule(s) to destination 'projectSettings': ["Bash","Edit","Write","Read","mcp__*"]
+2026-03-01T23:01:14.345Z [DEBUG] Applying permission update: Adding 5 allow rule(s) to destination 'localSettings': ["Bash","Edit","Write","Read","mcp__*"]
+2026-03-01T23:01:14.345Z [DEBUG] Applying permission update: Adding 5 allow rule(s) to destination 'flagSettings': ["Bash","Edit","Write","Read","mcp__*"]
+2026-03-01T23:01:14.345Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-03-01T23:01:14.350Z [DEBUG] [ToolSearch:optimistic] mode=tst-auto, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-03-01T23:01:14.350Z [DEBUG] [STARTUP] Running setup()...
+2026-03-01T23:01:14.385Z [DEBUG] Loading skills from: managed=/etc/claude-code/.claude/skills, user=/workspaces/mission-dd712aff/.claude/skills, project=[]
+2026-03-01T23:01:14.403Z [ERROR] SyntaxError: SyntaxError: Unexpected token / in JSON at position 0
+    at JSON.parse (<anonymous>)
+    at file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:54:1088
+    at K (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:8:7612)
+    at KgA.<anonymous> (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:7536:261)
+    at KgA.q [as _actionHandler] (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:6259:528)
+    at file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:6263:3119
+    at file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:6263:1674
+    at async KgA.parseAsync (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:6260:4156)
+    at async iNz (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:7557:11785)
+    at async dNz (file:///usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js:7516:1657)
+2026-03-01T23:01:14.403Z [DEBUG] Error log sink initialized
+2026-03-01T23:01:14.419Z [DEBUG] [STARTUP] setup() completed in 69ms
+2026-03-01T23:01:14.419Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-03-01T23:01:14.425Z [DEBUG] Loaded 9 unique skills (9 unconditional, 0 conditional, managed: 0, user: 9, project: 0, additional: 0, legacy commands: 0)
+2026-03-01T23:01:14.463Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2026-03-01T23:01:14.463Z [DEBUG] getPluginSkills: Processing 0 enabled plugins
+2026-03-01T23:01:14.463Z [DEBUG] Total plugin skills loaded: 0
+2026-03-01T23:01:14.463Z [DEBUG] Total plugin commands loaded: 0
+2026-03-01T23:01:14.463Z [DEBUG] Registered 0 hooks from 0 plugins
+2026-03-01T23:01:14.463Z [DEBUG] Total plugin agents loaded: 0
+2026-03-01T23:01:14.464Z [DEBUG] [claudeai-mcp] Checking gate (cached)...
+2026-03-01T23:01:14.464Z [DEBUG] [claudeai-mcp] Gate returned: true
+2026-03-01T23:01:14.464Z [DEBUG] [claudeai-mcp] Missing user:mcp_servers scope (scopes=user:inference,user:profile)
+2026-03-01T23:01:14.475Z [DEBUG] getSkills returning: 9 skill dir commands, 0 plugin skills, 2 bundled skills
+2026-03-01T23:01:14.476Z [DEBUG] [STARTUP] Commands and agents loaded in 57ms
+2026-03-01T23:01:14.477Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-03-01T23:01:14.477Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-03-01T23:01:14.477Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-03-01T23:01:14.478Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-03-01T23:01:14.478Z [DEBUG] [API:auth] OAuth token check starting
+2026-03-01T23:01:14.481Z [DEBUG] Total LSP servers loaded: 0
+2026-03-01T23:01:14.481Z [DEBUG] [STARTUP] MCP configs loaded in 136ms
+2026-03-01T23:01:14.490Z [DEBUG] MCP server "desktop": Starting connection with timeout of 30000ms
+2026-03-01T23:01:14.496Z [DEBUG] MCP server "playwright": Starting connection with timeout of 30000ms
+2026-03-01T23:01:14.501Z [DEBUG] MCP server "workspace": Starting connection with timeout of 30000ms
+2026-03-01T23:01:14.505Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-03-01T23:01:14.505Z [DEBUG] LSP manager initialized with 0 servers
+2026-03-01T23:01:14.505Z [DEBUG] LSP server manager initialized successfully
+2026-03-01T23:01:14.505Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-03-01T23:01:14.505Z [DEBUG] [API:auth] OAuth token check complete
+2026-03-01T23:01:14.520Z [DEBUG] MCP server "desktop": Connection failed after 37ms: spawn desktop-mcp ENOENT
+2026-03-01T23:01:14.520Z [ERROR] MCP server "desktop" Connection failed: spawn desktop-mcp ENOENT
+2026-03-01T23:01:14.520Z [DEBUG] MCP server "workspace": Connection failed after 20ms: spawn workspace-mcp ENOENT
+2026-03-01T23:01:14.520Z [ERROR] MCP server "workspace" Connection failed: spawn workspace-mcp ENOENT
+2026-03-01T23:01:14.734Z [DEBUG] Writing to temp file: /workspaces/mission-dd712aff/.claude/.claude.json.tmp.383860.1772406074734
+2026-03-01T23:01:14.734Z [DEBUG] Preserving file permissions: 100600
+2026-03-01T23:01:14.734Z [DEBUG] Temp file written successfully, size: 2445 bytes
+2026-03-01T23:01:14.734Z [DEBUG] Applied original permissions to temp file
+2026-03-01T23:01:14.734Z [DEBUG] Renaming /workspaces/mission-dd712aff/.claude/.claude.json.tmp.383860.1772406074734 to /workspaces/mission-dd712aff/.claude/.claude.json
+2026-03-01T23:01:14.734Z [DEBUG] File /workspaces/mission-dd712aff/.claude/.claude.json written atomically
+2026-03-01T23:01:14.742Z [DEBUG] Org fast mode: disabled (extra_usage_disabled)
