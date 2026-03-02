@@ -19,4 +19,4 @@ ENV CHAIN_ID=1337
 ENV PORT=8547
 ENV FAILURE_POLICY=fallback
 
-CMD ["node", "--experimental-specifier-resolution=node", "dist/server.js"]
+CMD ["node", "dist/server.js"]
