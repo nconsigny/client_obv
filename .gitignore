@@ -1,0 +1,11 @@
+node_modules/
+build/
+dist/
+.npm/
+.cache/
+.config/
+.bashrc
+.gitconfig
+.claude/
+kohaku-extension/
+*.log
