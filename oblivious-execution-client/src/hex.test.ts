@@ -61,4 +61,20 @@ describe("hex utilities", () => {
   it("throws on odd-length hex", () => {
     expect(() => hexToBytes("0x123")).toThrow("Odd-length hex");
   });
+
+  // oblivious_node compatibility: trailing whitespace in responses
+  it("hexToBytes handles trailing whitespace (oblivious_node format)", () => {
+    expect(hexToBytes("0x2a                          ")).toEqual(new Uint8Array([0x2a]));
+    expect(hexToBytes("  0xabcd  ")).toEqual(new Uint8Array([0xab, 0xcd]));
+  });
+
+  it("hexToBigInt handles trailing whitespace (oblivious_node format)", () => {
+    expect(hexToBigInt("0x2a                          ")).toBe(42n);
+    expect(hexToBigInt("  0xff  ")).toBe(255n);
+  });
+
+  it("hexToBytes handles empty after trim", () => {
+    expect(hexToBytes("0x")).toEqual(new Uint8Array(0));
+    expect(hexToBytes("  0x  ")).toEqual(new Uint8Array(0));
+  });
 });
