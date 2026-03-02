@@ -1,0 +1,93 @@
+# Local development docker-compose for testing the oblivious execution client
+# against a geth devnet without requiring Kurtosis.
+#
+# Usage:
+#   cd tests/ethpandaops
+#   docker compose up --build
+#
+# Services:
+#   geth:                     Reference geth node (dev mode, instant mining)
+#   oblivious-execution-client: The proof-verification client under test
+#   assertoor:                Test runner
+#
+# Note: This uses geth's native eth_getProof support as the proof source.
+# In production, oblivious_node would be the proof source for privacy.
+
+services:
+  # ── Geth (reference EL + proof source) ────────────────────────────────
+  geth:
+    image: ethereum/client-go:stable
+    command:
+      - --dev
+      - --dev.period=3
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3,debug
+      - --http.corsdomain=*
+      - --http.vhosts=*
+    ports:
+      - "8545:8545"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8545"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # ── Oblivious Execution Client ────────────────────────────────────────
+  oblivious-execution-client:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    environment:
+      # In dev mode, geth itself serves as both proof source and header source
+      PROOF_SERVER_URL: http://geth:8545
+      FALLBACK_RPC_URL: http://geth:8545
+      CHAIN_ID: "1337"
+      PORT: "8547"
+      FAILURE_POLICY: fallback
+    ports:
+      - "8547:8547"
+    depends_on:
+      geth:
+        condition: service_healthy
+
+  # ── Test runner ───────────────────────────────────────────────────────
+  test-runner:
+    image: curlimages/curl:latest
+    depends_on:
+      - oblivious-execution-client
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Waiting for oblivious client..."
+        sleep 10
+
+        PASS=0
+        FAIL=0
+        OBV=http://oblivious-execution-client:8547
+        GETH=http://geth:8545
+
+        check() {
+          desc="$$1"; payload="$$2"
+          geth_r=$$(curl -sf -X POST $$GETH -H "Content-Type: application/json" -d "$$payload" | grep -o '"result":"[^"]*"' | head -1)
+          obv_r=$$(curl -sf -X POST $$OBV -H "Content-Type: application/json" -d "$$payload" | grep -o '"result":"[^"]*"' | head -1)
+          if [ "$$geth_r" = "$$obv_r" ]; then
+            echo "PASS: $$desc ($$geth_r)"
+            PASS=$$((PASS + 1))
+          else
+            echo "FAIL: $$desc geth=$$geth_r obv=$$obv_r"
+            FAIL=$$((FAIL + 1))
+          fi
+        }
+
+        echo "=== Cross-client verification ==="
+        check "eth_chainId" '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+        check "eth_blockNumber" '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":2}'
+        check "eth_getBalance(zero)" '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x0000000000000000000000000000000000000000","latest"],"id":3}'
+
+        echo ""
+        echo "Results: $$PASS passed, $$FAIL failed"
+        if [ "$$FAIL" -gt 0 ]; then exit 1; fi
+        echo "ALL TESTS PASSED"

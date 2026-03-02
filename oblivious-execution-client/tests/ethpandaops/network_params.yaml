@@ -1,0 +1,60 @@
+# ethereum-package (Kurtosis) configuration for integration testing
+# the oblivious execution client against a real Ethereum network.
+#
+# Usage:
+#   kurtosis run --enclave oblivious-test \
+#     github.com/ethpandaops/ethereum-package \
+#     --args-file tests/ethpandaops/network_params.yaml
+
+participants:
+  # Reference geth node — serves as:
+  #   1. Trusted header source (eth_getBlockByNumber)
+  #   2. Code source (eth_getCode)
+  #   3. Reference for assertoor cross-client eth_call comparison
+  - el_type: geth
+    cl_type: lighthouse
+    count: 1
+
+network_params:
+  # Short slot time for faster testing
+  seconds_per_slot: 6
+  # Minimal genesis delay
+  genesis_delay: 20
+  # Use a small network
+  num_validator_keys_per_node: 64
+
+additional_services:
+  - assertoor
+  - spamoor
+  - dora
+
+# Spamoor: deploy contracts and create on-chain state for eth_call testing
+spamoor_params:
+  spammers:
+    # Deploy ERC-20 contracts with state we can query
+    - scenario: erc20tx
+      name: "erc20-state"
+      config:
+        throughput: 2
+
+    # Simple contract calls to create varied storage patterns
+    - scenario: calltx
+      name: "storage-calls"
+      config:
+        throughput: 5
+
+    # Standard EOA transfers for balance/nonce verification
+    - scenario: eoatx
+      name: "eoa-transfers"
+      config:
+        throughput: 10
+
+# Assertoor: run proof verification tests
+assertoor_params:
+  run_stability_check: true
+  run_block_proposal_check: true
+  tests:
+    # Cross-client eth_call verification
+    - file: "https://raw.githubusercontent.com/nconsigny/client_obv/master/tests/ethpandaops/assertoor-proof-verification.yaml"
+    # Proof server health check
+    - file: "https://raw.githubusercontent.com/nconsigny/client_obv/master/tests/ethpandaops/assertoor-proof-health.yaml"

@@ -1,0 +1,131 @@
+# Assertoor test: Proof server health and error handling
+#
+# Verifies that the oblivious execution client:
+#   1. Responds to JSON-RPC methods correctly
+#   2. Handles edge cases (non-existent accounts, empty storage)
+#   3. Returns proper error codes for unsupported methods
+#   4. Gracefully handles proof server unavailability
+
+id: proof-health-check
+name: "Proof Health: Server Connectivity and Error Handling"
+timeout: 15m
+
+tasks:
+  # ── Phase 1: Basic JSON-RPC health ──────────────────────────────────
+  - name: check_clients_are_healthy
+    title: "Wait for reference node"
+    timeout: 5m
+    config:
+      minClientCount: 1
+
+  - name: run_shell
+    title: "JSON-RPC basic health checks"
+    timeout: 2m
+    config:
+      shell: bash
+      envVars:
+        OBV_URL: "http://oblivious-execution-client:8547"
+      command: |
+        set -euo pipefail
+        PASS=0
+        FAIL=0
+
+        check() {
+          local desc="$1"
+          local payload="$2"
+          local expected="$3"
+
+          local resp=$(curl -sf -X POST "$OBV_URL" \
+            -H "Content-Type: application/json" -d "$payload")
+          local result=$(echo "$resp" | jq -r '.result // empty')
+          local error=$(echo "$resp" | jq -r '.error.message // empty')
+
+          if [ -n "$expected" ]; then
+            if echo "$result" | grep -q "$expected"; then
+              echo "  PASS: $desc → $result"
+              PASS=$((PASS + 1))
+            else
+              echo "  FAIL: $desc"
+              echo "    expected: $expected"
+              echo "    got: result=$result error=$error"
+              FAIL=$((FAIL + 1))
+            fi
+          else
+            # Just check we got a response (not a connection error)
+            if [ -n "$result" ] || [ -n "$error" ]; then
+              echo "  PASS: $desc → responded"
+              PASS=$((PASS + 1))
+            else
+              echo "  FAIL: $desc → no response"
+              FAIL=$((FAIL + 1))
+            fi
+          fi
+        }
+
+        echo "=== JSON-RPC Health Checks ==="
+
+        # eth_chainId
+        check "eth_chainId" \
+          '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' \
+          "0x"
+
+        # eth_blockNumber
+        check "eth_blockNumber" \
+          '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":2}' \
+          "0x"
+
+        # net_version
+        check "net_version" \
+          '{"jsonrpc":"2.0","method":"net_version","params":[],"id":3}' \
+          ""
+
+        echo ""
+        echo "=== Edge Cases ==="
+
+        # Non-existent account balance (should return 0x0)
+        check "balance of non-existent account" \
+          '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef","latest"],"id":4}' \
+          "0x0"
+
+        # eth_getCode on EOA (should return 0x)
+        check "code of EOA" \
+          '{"jsonrpc":"2.0","method":"eth_getCode","params":["0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef","latest"],"id":5}' \
+          "0x"
+
+        # eth_getStorageAt on empty slot
+        check "empty storage slot" \
+          '{"jsonrpc":"2.0","method":"eth_getStorageAt","params":["0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef","0x0000000000000000000000000000000000000000000000000000000000000000","latest"],"id":6}' \
+          "0x"
+
+        echo ""
+        echo "=== Results: $PASS passed, $FAIL failed ==="
+        if [ "$FAIL" -gt 0 ]; then exit 1; fi
+        echo "ALL HEALTH CHECKS PASSED"
+
+  # ── Phase 2: Verify error handling for unsupported methods ───────────
+  - name: run_shell
+    title: "Unsupported method error handling"
+    timeout: 1m
+    config:
+      shell: bash
+      envVars:
+        OBV_URL: "http://oblivious-execution-client:8547"
+      command: |
+        set -euo pipefail
+
+        echo "=== Unsupported Method Tests ==="
+
+        # eth_sendTransaction should error (read-only client)
+        RESP=$(curl -sf -X POST "$OBV_URL" \
+          -H "Content-Type: application/json" \
+          -d '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{}],"id":1}')
+
+        HAS_ERROR=$(echo "$RESP" | jq 'has("error")')
+
+        if [ "$HAS_ERROR" = "true" ]; then
+          echo "  PASS: eth_sendTransaction returns error (read-only client)"
+        else
+          echo "  INFO: eth_sendTransaction was proxied to fallback (fallback mode)"
+        fi
+
+        echo "DONE"

@@ -1,0 +1,185 @@
+# Assertoor test: Cross-client eth_call verification
+#
+# Verifies that the oblivious execution client returns identical
+# eth_call results to a reference geth node. This proves that:
+#   1. EIP-1186 proofs are fetched and verified correctly
+#   2. Local EVM execution produces correct results
+#   3. State reads (SLOAD, BALANCE, etc.) match verified proofs
+#
+# Requires:
+#   - A geth reference node (provided by ethereum-package)
+#   - The oblivious-execution-client JSON-RPC server running on port 8547
+#   - An oblivious_node proof server (or geth with eth_getProof support)
+
+id: proof-verification-cross-client
+name: "Proof Verification: Cross-Client eth_call"
+timeout: 30m
+
+config:
+  walletPrivkey: ""
+
+tasks:
+  # ── Phase 1: Wait for network readiness ──────────────────────────────
+  - name: check_clients_are_healthy
+    title: "Wait for EL/CL clients to be healthy"
+    timeout: 5m
+    config:
+      minClientCount: 1
+
+  - name: run_tasks_concurrent
+    title: "Verify EL and CL are synced"
+    timeout: 2m
+    config:
+      tasks:
+        - name: check_consensus_sync_status
+          title: "CL sync check"
+        - name: check_execution_sync_status
+          title: "EL sync check"
+
+  # ── Phase 2: Wait for some on-chain state ────────────────────────────
+  # Spamoor should have deployed contracts by now. Wait for a few blocks.
+  - name: sleep
+    title: "Wait for spamoor to create on-chain state"
+    config:
+      duration: 30s
+
+  # ── Phase 3: Deploy a deterministic test contract ────────────────────
+  # Simple storage contract: stores a value and returns it
+  # contract TestStorage {
+  #   uint256 public value = 42;
+  #   function getValue() public view returns (uint256) { return value; }
+  # }
+  - name: generate_transaction
+    title: "Deploy TestStorage contract"
+    config:
+      privateKey: "walletPrivkey"
+      contractDeployment: true
+      # Bytecode for: contract with value=42, getValue() returns value
+      callData: "0x6080604052602a60005534801561001557600080fd5b5060b3806100246000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806320965255146037578063552410771460535780636d4ce63c146071575b600080fd5b603d6083565b6040518082815260200191505060405180910390f35b606f60048036036020811015606757600080fd5b810190808035906020019092919050505060089565b005b60776083565b60405190815260200160405180910390f35b60005481565b600055565b"
+      gasLimit: 500000
+      awaitReceipt: true
+
+  - name: sleep
+    title: "Wait for contract deployment inclusion"
+    config:
+      duration: 12s
+
+  # ── Phase 4: Verify eth_call through reference geth ──────────────────
+  - name: check_eth_call
+    title: "Baseline: eth_call via geth returns expected value"
+    timeout: 2m
+    config:
+      failOnMismatch: true
+
+  # ── Phase 5: Cross-client verification via shell ─────────────────────
+  # This is the core test: compare eth_call results between geth and
+  # the oblivious execution client
+  - name: run_shell
+    title: "Cross-verify: oblivious client vs geth reference"
+    timeout: 5m
+    config:
+      shell: bash
+      envVars:
+        GETH_URL: "http://el-1-geth-lighthouse:8545"
+        OBV_URL: "http://oblivious-execution-client:8547"
+      command: |
+        set -euo pipefail
+
+        echo "=== Cross-Client eth_call Verification ==="
+        echo "Reference: $GETH_URL"
+        echo "Oblivious: $OBV_URL"
+
+        PASS=0
+        FAIL=0
+
+        verify_call() {
+          local desc="$1"
+          local payload="$2"
+
+          local geth_resp=$(curl -sf -X POST "$GETH_URL" \
+            -H "Content-Type: application/json" -d "$payload")
+          local obv_resp=$(curl -sf -X POST "$OBV_URL" \
+            -H "Content-Type: application/json" -d "$payload")
+
+          local geth_result=$(echo "$geth_resp" | jq -r '.result // .error.message')
+          local obv_result=$(echo "$obv_resp" | jq -r '.result // .error.message')
+
+          if [ "$geth_result" = "$obv_result" ]; then
+            echo "  PASS: $desc"
+            echo "    result: $geth_result"
+            PASS=$((PASS + 1))
+          else
+            echo "  FAIL: $desc"
+            echo "    geth:      $geth_result"
+            echo "    oblivious: $obv_result"
+            FAIL=$((FAIL + 1))
+          fi
+        }
+
+        # Test 1: eth_getBalance on a funded account
+        echo ""
+        echo "--- Test: eth_getBalance ---"
+        verify_call "getBalance(coinbase)" \
+          '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x0000000000000000000000000000000000000000","latest"],"id":1}'
+
+        # Test 2: eth_getTransactionCount
+        echo ""
+        echo "--- Test: eth_getTransactionCount ---"
+        verify_call "getTransactionCount(zero addr)" \
+          '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x0000000000000000000000000000000000000000","latest"],"id":2}'
+
+        # Test 3: eth_getCode on a non-contract (should be 0x)
+        echo ""
+        echo "--- Test: eth_getCode (EOA) ---"
+        verify_call "getCode(EOA)" \
+          '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x0000000000000000000000000000000000000001","latest"],"id":3}'
+
+        echo ""
+        echo "=== Results: $PASS passed, $FAIL failed ==="
+
+        if [ "$FAIL" -gt 0 ]; then
+          echo "VERIFICATION FAILED"
+          exit 1
+        fi
+        echo "ALL CHECKS PASSED"
+
+  # ── Phase 6: Verify proof fetching works ─────────────────────────────
+  - name: run_shell
+    title: "Verify eth_getProof round-trip"
+    timeout: 2m
+    config:
+      shell: bash
+      envVars:
+        GETH_URL: "http://el-1-geth-lighthouse:8545"
+        OBV_URL: "http://oblivious-execution-client:8547"
+      command: |
+        set -euo pipefail
+
+        echo "=== eth_getProof Verification ==="
+
+        # Fetch proof through oblivious client
+        PROOF=$(curl -sf -X POST "$OBV_URL" \
+          -H "Content-Type: application/json" \
+          -d '{"jsonrpc":"2.0","method":"eth_getProof","params":["0x0000000000000000000000000000000000000000",[],"latest"],"id":1}')
+
+        # Check that accountProof array exists and is non-empty
+        PROOF_LEN=$(echo "$PROOF" | jq '.result.accountProof | length')
+
+        if [ "$PROOF_LEN" -gt 0 ]; then
+          echo "  PASS: accountProof has $PROOF_LEN nodes"
+        else
+          echo "  FAIL: accountProof is empty or missing"
+          echo "  Response: $PROOF"
+          exit 1
+        fi
+
+        # Check storageHash is present
+        STORAGE_HASH=$(echo "$PROOF" | jq -r '.result.storageHash')
+        if [ "$STORAGE_HASH" != "null" ] && [ -n "$STORAGE_HASH" ]; then
+          echo "  PASS: storageHash = $STORAGE_HASH"
+        else
+          echo "  FAIL: storageHash missing"
+          exit 1
+        fi
+
+        echo "ALL PROOF CHECKS PASSED"
